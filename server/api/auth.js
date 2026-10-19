@@ -38,10 +38,12 @@ export default async function handler(req, res) {
   let body;
   try {
     body = await readJson(req);
-  } catch {
+  } catch (err) {
+    console.error("[auth] readJson error:", err?.message, err?.stack);
     return error(req, res, 400, "Richiesta non valida.");
   }
 
+  console.debug("[auth] parsed body:", body);
   const email = String(body.email || "").trim().toLowerCase();
   const password = String(body.password || "");
   if (!email || !password) return error(req, res, 422, "Inserisci email e password.");

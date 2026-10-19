@@ -10,3 +10,4 @@ dist-ssr
 logs
 
 .env*
+.vercel

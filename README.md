@@ -85,7 +85,8 @@ npm run dev          # Vite su :5173, con proxy /api -> :3000
 ## Struttura
 
 ```
-api/                 funzioni serverless
+api/index.js         unica Vercel Function: instrada tutte le chiamate /api/*
+server/api/          moduli degli endpoint (fuori da /api per il limite Hobby)
   _lib/              db, auth, http, rate limit
   admin/             endpoint protetti (dashboard, prenotazioni, ordini, fedeltà, messaggi, contenuti)
   content.js         payload pubblico unico (menu, promo, eventi, orari…)
@@ -94,6 +95,7 @@ api/                 funzioni serverless
   orders.js          creazione + stato ordine
   loyalty.js         iscrizione + consultazione punti
   contact.js         messaggi dal form contatti
+  newsletter.js      iscrizioni newsletter
   upload.js          upload immagini su Vercel Blob
 db/schema.sql        schema completo + seed
 scripts/             setup database

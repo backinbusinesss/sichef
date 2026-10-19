@@ -1,12 +1,16 @@
 {
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "/api/index"
+    },
+    {
       "source": "/((?!api/|assets/|src/|@|node_modules/|favicon|robots|sitemap).*)",
       "destination": "/index.html"
     }
   ],
   "functions": {
-    "api/**/*.js": {
+    "api/index.js": {
       "maxDuration": 30
     }
   },
