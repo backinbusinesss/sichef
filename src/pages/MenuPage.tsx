@@ -338,6 +338,7 @@ export function MenuPage() {
                         expanded={expandedItem === item.id}
                         onToggleExpand={toggleExpand}
                         onAddToCart={addToCart}
+                        categoryKind={category.kind}
                       />
                     ))}
                   </div>
@@ -351,6 +352,7 @@ export function MenuPage() {
                         expanded={expandedItem === item.id}
                         onToggleExpand={toggleExpand}
                         onAddToCart={addToCart}
+                        categoryKind={category.kind}
                       />
                     ))}
                   </div>
@@ -409,12 +411,14 @@ function MenuItemCard({
   expanded,
   onToggleExpand,
   onAddToCart,
+  categoryKind,
 }: {
   item: any;
   allergens: any[];
   expanded: boolean;
   onToggleExpand: (id: string) => void;
   onAddToCart: (id: string) => void;
+  categoryKind: string;
 }) {
   return (
     <article className="group relative">
@@ -427,8 +431,28 @@ function MenuItemCard({
             className="size-full object-cover transition-transform duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="size-full grid place-items-center text-3xl bg-cream-2">
-            {item.categoryEmoji || "🍽️"}
+          <div className="size-full overflow-hidden rounded-2xl bg-cream-2">
+            <img
+              src={
+                categoryKind.toLowerCase().includes("carne") || categoryKind.toLowerCase().includes("grigliata")
+                  ? "/assets/img/dish-grigliata.webp"
+                  : categoryKind.toLowerCase().includes("pesce") || categoryKind.toLowerCase().includes("seafood")
+                  ? "/assets/img/seafood.webp"
+                  : categoryKind.toLowerCase().includes("pizza")
+                  ? "/assets/img/dish-pizza.webp"
+                  : categoryKind.toLowerCase().includes("antipasto")
+                  ? "/assets/img/dish-antipasto.webp"
+                  : categoryKind.toLowerCase().includes("insalata")
+                  ? "/assets/img/dish-insalata.webp"
+                  : categoryKind.toLowerCase().includes("risotto")
+                  ? "/assets/img/risotto.webp"
+                  : categoryKind.toLowerCase().includes("dessert")
+                  ? "/assets/img/tiramisu.webp"
+                  : "/assets/img/dish-antipasto.webp"
+              }
+              alt={item.name} loading="lazy"
+              className="size-full object-cover rounded-2xl"
+            />
           </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
@@ -532,12 +556,14 @@ function MenuItemList({
   expanded,
   onToggleExpand,
   onAddToCart,
+  categoryKind,
 }: {
   item: any;
   allergens: any[];
   expanded: boolean;
   onToggleExpand: (id: string) => void;
   onAddToCart: (id: string) => void;
+  categoryKind: string;
 }) {
   return (
     <article className="menu-item-row group py-4" style={{ transition: "background 0.3s ease" }}>
@@ -557,8 +583,28 @@ function MenuItemList({
                 className="size-full object-cover transition-transform duration-500"
               />
             ) : (
-              <div className="size-full grid place-items-center text-2xl bg-cream-2">
-                {item.categoryEmoji || "🍽️"}
+              <div className="size-full overflow-hidden rounded-xl bg-cream-2">
+                <img
+                  src={
+                    categoryKind.toLowerCase().includes("carne") || categoryKind.toLowerCase().includes("grigliata")
+                      ? "/assets/img/dish-grigliata.webp"
+                      : categoryKind.toLowerCase().includes("pesce") || categoryKind.toLowerCase().includes("seafood")
+                      ? "/assets/img/seafood.webp"
+                      : categoryKind.toLowerCase().includes("pizza")
+                      ? "/assets/img/dish-pizza.webp"
+                      : categoryKind.toLowerCase().includes("antipasto")
+                      ? "/assets/img/dish-antipasto.webp"
+                      : categoryKind.toLowerCase().includes("insalata")
+                      ? "/assets/img/dish-insalata.webp"
+                      : categoryKind.toLowerCase().includes("risotto")
+                      ? "/assets/img/risotto.webp"
+                      : categoryKind.toLowerCase().includes("dessert")
+                      ? "/assets/img/tiramisu.webp"
+                      : "/assets/img/dish-antipasto.webp"
+                  }
+                  alt={item.name} loading="lazy"
+                  className="size-full object-cover rounded-xl"
+                />
               </div>
             )}
             {!item.isAvailable && (
