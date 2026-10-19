@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X, CalendarCheck, Phone, ShoppingBag, ArrowUpRight } from "lucide-react";
 import { Logo } from "./Logo";
 import { cn, scrollToId } from "@/lib/utils";
-import { useLockBody, useScrollProgress } from "@/lib/hooks";
+import { useLockBody, useScrollProgress, useFocusTrap } from "@/lib/hooks";
 import { useContent } from "@/lib/content";
 
 const LINKS = [
@@ -25,10 +25,21 @@ export function Header() {
   const solid = !isHome || scrolled;
 
   useLockBody(open);
+  const mobileMenuRef = useFocusTrap(open);
+
+  const handleFocusTrapEscape = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    const container = mobileMenuRef.current;
+    if (!container) return;
+    const handler = () => handleFocusTrapEscape();
+    container.addEventListener("focusTrapEscape", handler);
+    return () => container.removeEventListener("focusTrapEscape", handler);
+  }, [handleFocusTrapEscape]);
 
   const goHomeSection = (id: string) => {
     setOpen(false);
@@ -56,12 +67,13 @@ export function Header() {
                 key={link.to}
                 to={link.to}
                 className={cn(
-                  "link-underline text-[0.65rem] font-extrabold tracking-[0.16em] uppercase transition-colors",
+                  "link-underline text-[0.65rem] font-extrabold tracking-[0.16em] uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-ink",
                   solid
                     ? "text-ink/60 hover:text-ink"
                     : "text-cream/70 hover:text-cream",
                   location.pathname === link.to && (solid ? "text-flame" : "text-ember"),
                 )}
+                aria-current={location.pathname === link.to ? "page" : undefined}
               >
                 {link.label}
               </Link>
@@ -114,19 +126,20 @@ export function Header() {
       </header>
 
       <div
+        ref={mobileMenuRef}
         className={cn(
           "fixed inset-0 z-40 bg-ink text-cream transition-all duration-500 xl:hidden",
           open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
       >
         <div className="flex h-full flex-col justify-between px-6 pt-28 pb-9">
-          <nav className="flex flex-col gap-0.5">
+          <nav className="flex flex-col gap-0.5" role="navigation" aria-label="Menu mobile">
             {LINKS.map((link, index) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setOpen(false)}
-                className="group flex items-center justify-between border-b border-cream/10 py-3.5 text-left transition-all"
+                className="group flex items-center justify-between border-b border-cream/10 py-3.5 text-left transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
                 style={{
                   transitionDelay: `${index * 35}ms`,
                   opacity: open ? 1 : 0,
@@ -141,7 +154,7 @@ export function Header() {
             ))}
             <button
               onClick={() => goHomeSection("galleria")}
-              className="flex items-center justify-between border-b border-cream/10 py-3.5 text-left"
+              className="flex items-center justify-between border-b border-cream/10 py-3.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             >
               <span className="font-display text-3xl">Galleria</span>
               <span className="text-[0.58rem] tracking-[0.2em] text-cream/35">07</span>

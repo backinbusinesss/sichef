@@ -106,3 +106,73 @@ export function useLockBody(locked: boolean) {
     };
   }, [locked]);
 }
+
+/** Trappa il focus all'interno di un elemento quando è attivo. */
+export function useFocusTrap(active: boolean) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const previousActiveElement = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Salva l'elemento che aveva il focus prima di aprire
+    previousActiveElement.current = document.activeElement as HTMLElement;
+
+    // Trova tutti gli elementi focusabili all'interno del container
+    const getFocusableElements = () =>
+      container.querySelectorAll<HTMLElement>(
+        'a[href], button, textarea, input, select, [tabindex]:not([tabindex="-1"])',
+      );
+
+    const focusableElements = getFocusableElements();
+    const firstElement = focusableElements[0];
+
+    // Sposta il focus sul primo elemento
+    firstElement?.focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Tab") return;
+
+      const currentFocusable = getFocusableElements();
+      if (currentFocusable.length === 0) return;
+
+      const first = currentFocusable[0];
+      const last = currentFocusable[currentFocusable.length - 1];
+
+      if (e.shiftKey) {
+        if (document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        }
+      } else {
+        if (document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    // Chiudi con Escape
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        // Il componente padre gestirà la chiusura
+        container.dispatchEvent(new CustomEvent("focusTrapEscape"));
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener("keydown", handleEscape);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener("keydown", handleEscape);
+      // Ripristina il focus all'elemento precedente
+      previousActiveElement.current?.focus();
+    };
+  }, [active]);
+
+  return containerRef;
+}

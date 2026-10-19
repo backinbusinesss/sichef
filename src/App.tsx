@@ -2,6 +2,8 @@
 import { Routes, Route, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { StructuredData } from "@/components/StructuredData";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ContentProvider, useContent } from "@/lib/content";
 import { Spinner } from "@/admin/ui";
 
@@ -92,9 +94,11 @@ function SiteShell() {
   }
 
   return (
-    <div className="paper-grain min-h-screen bg-cream">
-      <Header />
-      <main>
+    <ErrorBoundary>
+      <div className="paper-grain min-h-screen bg-cream">
+        <StructuredData />
+        <Header />
+        <main>
         <Suspense fallback={<SectionLoader />}>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -119,7 +123,8 @@ function SiteShell() {
       </main>
       <Footer />
     </div>
-  );
+  </ErrorBoundary>
+);
 }
 
 export default function App() {
