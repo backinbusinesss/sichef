@@ -32,6 +32,7 @@ export function MenuPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [sortBy, setSortBy] = useState<"name" | "price-asc" | "price-desc">("name");
+  const [toast, setToast] = useState<{ open: boolean; message: string } | null>(null);
 
   const categoryScrollRef = useRef<HTMLDivElement>(null);
 
@@ -48,6 +49,9 @@ export function MenuPage() {
       localStorage.setItem(CART_KEY, JSON.stringify(updated));
       // Dispatch custom event to notify other components (e.g., OrderPage)
       window.dispatchEvent(new CustomEvent("cart-updated"));
+      // Show toast feedback
+      setToast({ open: true, message: "Aggiunto al carrello" });
+      setTimeout(() => setToast(null), 2000);
     } catch {}
   };
 
@@ -96,6 +100,13 @@ export function MenuPage() {
 
   return (
     <>
+      {/* Toast per add-to-cart */}
+      {toast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-ember/90 text-ink rounded-full px-4 py-2 text-sm font-medium shadow-md z-50 animate-in fade-in-0 dark:bg-ember dark:text-cream">
+          {toast.message}
+        </div>
+      )}
+
       <PageHero
         eyebrow="Cucina & pizzeria"
         title="Il nostro menu"
