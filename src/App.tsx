@@ -128,6 +128,12 @@ function SiteShell() {
 }
 
 export default function App() {
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+  }, []);
+
   return (
     <ContentProvider>
       <ScrollToTop />

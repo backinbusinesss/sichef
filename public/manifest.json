@@ -1,0 +1,42 @@
+{
+  "name": "Ristorante Sì Chef",
+  "short_name": "Sì Chef",
+  "description": "Ristorante e pizzeria a Cerro Maggiore. Menu, ordini, prenotazioni e fedeltà.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#14251e",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/img/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["food", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "Menu",
+      "short_name": "Menu",
+      "description": "Visualizza il menu completo",
+      "url": "/menu",
+      "icons": [{ "src": "/assets/img/dish-pizza.webp", "sizes": "192x192" }]
+    },
+    {
+      "name": "Prenota",
+      "short_name": "Prenota",
+      "description": "Prenota un tavolo",
+      "url": "/prenota",
+      "icons": [{ "src": "/assets/img/dish-pizza.webp", "sizes": "192x192" }]
+    },
+    {
+      "name": "Ordina",
+      "short_name": "Ordina",
+      "description": "Ordina asporto o consegna",
+      "url": "/ordina",
+      "icons": [{ "src": "/assets/img/dish-pizza.webp", "sizes": "192x192" }]
+    }
+  ]
+}
