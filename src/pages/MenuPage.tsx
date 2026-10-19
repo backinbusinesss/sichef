@@ -1,13 +1,16 @@
-﻿import { useMemo, useState } from "react";
+﻿import { useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ArrowRight,
   CalendarCheck,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   ChevronUp,
   Filter,
   Grid,
   List,
+  Plus,
   Search,
   Sparkles,
   X,
@@ -29,6 +32,24 @@ export function MenuPage() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [featuredOnly, setFeaturedOnly] = useState(false);
   const [sortBy, setSortBy] = useState<"name" | "price-asc" | "price-desc">("name");
+
+  const categoryScrollRef = useRef<HTMLDivElement>(null);
+
+  const CART_KEY = "sichef_cart_v1";
+
+  const addToCart = (id: string) => {
+    try {
+      const raw = localStorage.getItem(CART_KEY);
+      const cart = raw ? JSON.parse(raw) : [];
+      const existing = cart.find((line: any) => line.id === id);
+      const updated = existing
+        ? cart.map((line: any) => (line.id === id ? { ...line, quantity: line.quantity + 1 } : line))
+        : [...cart, { id, quantity: 1 }];
+      localStorage.setItem(CART_KEY, JSON.stringify(updated));
+      // Dispatch custom event to notify other components (e.g., OrderPage)
+      window.dispatchEvent(new CustomEvent("cart-updated"));
+    } catch {}
+  };
 
   const categories = content?.categories ?? [];
   const items = content?.items ?? [];
@@ -97,16 +118,35 @@ export function MenuPage() {
 
       {/* Sticky category navigation */}
       <div className="sticky top-[4.6rem] z-30 border-b border-ink/10 bg-cream/95 backdrop-blur-xl">
-        <div className="shell flex items-center gap-2 overflow-x-auto py-3 no-scrollbar">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => handleCategoryClick(category.slug)}
-              className="shrink-0 rounded-full border border-ink/12 bg-white/40 px-3.5 py-1.5 text-[0.58rem] font-extrabold tracking-[0.1em] text-ink/60 uppercase transition-colors hover:border-flame/50 hover:text-flame focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2"
-            >
-              {category.emoji} {category.name}
-            </button>
-          ))}
+        <div className="shell relative">
+          <button
+            onClick={() => categoryScrollRef.current?.scrollBy({ left: -200, behavior: "smooth" })}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 grid size-8 place-items-center rounded-full border border-ink/12 bg-white/80 text-ink/60 opacity-0 hover:opacity-100 transition-opacity lg:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            aria-label="Scorri categorie indietro"
+          >
+            <ChevronLeft className="size-4" />
+          </button>
+          <div
+            ref={categoryScrollRef}
+            className="flex items-center gap-2 overflow-x-auto py-3 no-scrollbar lg:px-8"
+          >
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => handleCategoryClick(category.slug)}
+                className="shrink-0 rounded-full border border-ink/12 bg-white/40 px-3.5 py-1.5 text-[0.58rem] font-extrabold tracking-[0.1em] text-ink/60 uppercase transition-colors hover:border-flame/50 hover:text-flame focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember focus-visible:ring-offset-2"
+              >
+                {category.emoji} {category.name}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => categoryScrollRef.current?.scrollBy({ left: 200, behavior: "smooth" })}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 grid size-8 place-items-center rounded-full border border-ink/12 bg-white/80 text-ink/60 opacity-0 hover:opacity-100 transition-opacity lg:opacity-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            aria-label="Scorri categorie avanti"
+          >
+            <ChevronRight className="size-4" />
+          </button>
         </div>
       </div>
 
@@ -297,6 +337,7 @@ export function MenuPage() {
                         allergens={allergens}
                         expanded={expandedItem === item.id}
                         onToggleExpand={toggleExpand}
+                        onAddToCart={addToCart}
                       />
                     ))}
                   </div>
@@ -309,6 +350,7 @@ export function MenuPage() {
                         allergens={allergens}
                         expanded={expandedItem === item.id}
                         onToggleExpand={toggleExpand}
+                        onAddToCart={addToCart}
                       />
                     ))}
                   </div>
@@ -366,11 +408,13 @@ function MenuItemCard({
   allergens,
   expanded,
   onToggleExpand,
+  onAddToCart,
 }: {
   item: any;
   allergens: any[];
   expanded: boolean;
   onToggleExpand: (id: string) => void;
+  onAddToCart: (id: string) => void;
 }) {
   return (
     <article className="group relative">
@@ -401,6 +445,20 @@ function MenuItemCard({
             <Sparkles className="size-3" /> In evidenza
           </span>
         )}
+        {!item.isAvailable && (
+          <span className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-ink/80 px-2.5 py-1 text-[0.5rem] font-extrabold tracking-[0.08em] text-cream uppercase">
+            Non disp.
+          </span>
+        )}
+        <button
+          onClick={() => onAddToCart(item.id)}
+          disabled={!item.isAvailable}
+          className="absolute top-3 right-3 grid size-9 place-items-center rounded-full border border-cream/30 bg-ink/40 text-cream backdrop-blur-sm transition-all hover:bg-ink/60 hover:border-cream/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember disabled:opacity-40 disabled:cursor-not-allowed"
+          aria-label={`Aggiungi ${item.name} al carrello`}
+          aria-disabled={!item.isAvailable}
+        >
+          <Plus className="size-4" />
+        </button>
         <button
           onClick={() => onToggleExpand(item.id)}
           className="absolute bottom-3 right-3 grid size-9 place-items-center rounded-full border border-cream/30 bg-ink/40 text-cream backdrop-blur-sm transition-all hover:bg-ink/60 hover:border-cream/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
@@ -473,11 +531,13 @@ function MenuItemList({
   allergens,
   expanded,
   onToggleExpand,
+  onAddToCart,
 }: {
   item: any;
   allergens: any[];
   expanded: boolean;
   onToggleExpand: (id: string) => void;
+  onAddToCart: (id: string) => void;
 }) {
   return (
     <article className="menu-item-row group py-4" style={{ transition: "background 0.3s ease" }}>
@@ -540,6 +600,18 @@ function MenuItemList({
             </div>
           </div>
 
+          <button
+            onClick={() => onAddToCart(item.id)}
+            disabled={!item.isAvailable}
+            className={cn(
+              "shrink-0 grid size-9 place-items-center rounded-full border transition-colors",
+              !item.isAvailable ? "opacity-40 cursor-not-allowed" : "border-ink/15 text-ink/50 hover:border-ink/30 hover:bg-ink/5",
+            )}
+            aria-label={`Aggiungi ${item.name} al carrello`}
+            aria-disabled={!item.isAvailable}
+          >
+            <Plus className="size-4" />
+          </button>
           <button
             onClick={() => onToggleExpand(item.id)}
             className={cn(
